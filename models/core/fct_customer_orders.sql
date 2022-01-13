@@ -24,9 +24,12 @@ paid_orders as (
         any_value(orders.customer_id) as customer_id,
         any_value(orders.order_status) as order_status,
         max(payments.created_date) as payment_finalized_date, 
-        sum(payments.amount) as total_amount_paid
+        sum(payments.amount) as total_amount_paid,
+        any_value(customers.customer_first_name) as customer_first_name,
+        any_value(customers.customer_last_name) as customer_last_name
     from payments
     left join orders using (order_id)
+    left join customers using (customer_id)
     where payment_status <> 'fail'
     group by 1
 
@@ -41,8 +44,8 @@ final as (
         paid_orders.order_status,
         paid_orders.total_amount_paid,
         paid_orders.payment_finalized_date,
-        customers.customer_first_name,
-        customers.customer_last_name,
+        paid_orders.customer_first_name,
+        paid_orders.customer_last_name,
         row_number() over (order by paid_orders.order_id) as transaction_seq,
         row_number() over (partition by paid_orders.customer_id order by paid_orders.order_id) as customer_sales_seq,
         case
@@ -52,7 +55,6 @@ final as (
         sum(paid_orders.total_amount_paid) over(partition by paid_orders.customer_id order by paid_orders.order_id) as customer_lifetime_value,
         min(paid_orders.order_placed_at) over(partition by paid_orders.customer_id order by paid_orders.order_placed_at) as fdos
     from paid_orders
-    join customers using (customer_id)
     order by order_id
 
 )
