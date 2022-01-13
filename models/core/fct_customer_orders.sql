@@ -32,31 +32,6 @@ paid_orders as (
 
 ),
 
-customer_orders as (
-
-    select
-        customer_id,
-        any_value(customer_first_name) as customer_first_name,
-        any_value(customer_last_name) as customer_last_name,
-        min(order_date) as first_order_date,
-        max(order_date) as most_recent_order_date,
-        count(order_id) as number_of_orders
-    from customers
-    left join orders using (customer_id)
-    group by 1
-
-),
-
-cume_lifetime_value as (
-
-    select
-        customer_id,
-        order_id,
-        sum(total_amount_paid) over(partition by customer_id order by order_id) as customer_lifetime_value
-    from paid_orders
-
-),
-
 final as (
 
     select 
@@ -71,14 +46,13 @@ final as (
         row_number() over (order by po.order_id) as transaction_seq,
         row_number() over (partition by customer_id order by po.order_id) as customer_sales_seq,
         case
-        when first_order_date = order_placed_at then 'new'
+        when rank() over(partition by customer_id order by order_placed_at) = 1 then 'new'
             else 'return'
         end as nvsr,
-        customer_lifetime_value,
-        first_order_date as fdos
+        sum(total_amount_paid) over(partition by customer_id order by order_id) as customer_lifetime_value,
+        min(order_placed_at) over(partition by customer_id order by order_placed_at) as fdos
     from paid_orders as po
-    join customer_orders as co using (customer_id)
-    join cume_lifetime_value as lv using (customer_id, order_id)
+    join customers using (customer_id)
     order by order_id
 
 )
