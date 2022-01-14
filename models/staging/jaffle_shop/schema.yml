@@ -1,14 +1,5 @@
 version: 2
 
-sources:
-  - name: jaffle_shop
-    database: dbt-tutorial
-    schema: jaffle_shop
-    tables:
-      - name: customers
-      - name: orders
-
-
 models:
   - name: stg_jaffle_shop__customers
     columns:
