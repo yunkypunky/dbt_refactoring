@@ -7,4 +7,6 @@ sources:
     schema: jaffle_shop
     tables:
       - name: customers
+        description: raw customer data
       - name: orders
+        description: raw orders data

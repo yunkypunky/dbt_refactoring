@@ -2,14 +2,18 @@ version: 2
 
 models:
   - name: stg_jaffle_shop__customers
+    description: staging customer data
     columns:
       - name: customer_id
+        description: primary key
         tests:
           - not_null
           - unique
   - name: stg_jaffle_shop__orders
+    description: staging orders data
     columns:
       - name: order_id
+        description: primary key
         tests:
           - not_null
           - unique

@@ -2,7 +2,9 @@ version: 2
 
 sources:
   - name: stripe
+    description: raw data from stripe schema
     database: dbt-tutorial
     schema: stripe
     tables:
       - name: payment
+        description: raw payment data
