@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: fct_customer_orders
+    description: fact table of customer orders with cumulative lifetime value
+    columns:
+      - name: order_id
+        description: primay key
+        tests:
+          - not_null
+          - unique
+
